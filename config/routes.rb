@@ -9,11 +9,15 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # Frontend routes
+  get 'weather', to: 'weather#index'
+  get 'docs', to: 'weather#docs'
+
   # API routes
   namespace :api do
     get 'weather/current', to: 'weather#current'
   end
 
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "weather#index"
 end

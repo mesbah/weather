@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .weather-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .weather-item h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .weather-item .value {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .examples {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .examples h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .examples ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .examples li {
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .examples li:before {
+            content: "• ";
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #5a67d8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/">🌤️ Weather App</a>
+            <a href="/docs">📚 API Docs</a>
+        </div>
+        
+        <h1>🌤️ Weather API</h1>
+        
+        <div class="input-group">
+            <label for="location">Enter an address or postal code:</label>
+            <input type="text" id="location" placeholder="e.g., 123 Main St, New York, NY 10001 or A1A 1A1">
+        </div>
+        
+        <button onclick="getWeather()" id="submitBtn">Get Weather</button>
+        
+        <div id="result" class="result"></div>
+        
+        <div class="examples">
+            <h4>💡 Examples:</h4>
+            <ul>
+                <li>US ZIP codes: 10001, 90210-1234</li>
+                <li>Canadian postal codes: A1A 1A1, B2B2B2</li>
+                <li>Full addresses: 123 Main St, Toronto, ON A1A 1A1</li>
+                <li>US addresses: 456 Oak Ave, Los Angeles, CA 90210</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function getWeather() {
+            const location = document.getElementById('location').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            
+            if (!location) {
+                showError('Please enter a location');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Loading...';
+            resultDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch(`/api/weather/current?location=${encodeURIComponent(location)}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(data);
+                } else {
+                    showError(data.error || 'Failed to get weather data');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Get Weather';
+            }
+        }
+        
+        function showSuccess(data) {
+            const resultDiv = document.getElementById('result');
+            const weather = data.data.weather;
+            const location = data.data.location;
+            
+            resultDiv.className = 'result success';
+            resultDiv.style.display = 'block';
+            
+            resultDiv.innerHTML = `
+                <h3>📍 ${location.postal_code} (${location.country})</h3>
+                <p><strong>Last Updated:</strong> ${weather.last_updated}</p>
+                <div class="weather-grid">
+                    <div class="weather-item">
+                        <h3>Temperature</h3>
+                        <div class="value">${weather.temp_c}°C</div>
+                        <div class="value">${weather.temp_f}°F</div>
+                    </div>
+                    <div class="weather-item">
+                        <h3>Feels Like</h3>
+                        <div class="value">${weather.feelslike_c}°C</div>
+                        <div class="value">${weather.feelslike_f}°F</div>
+                    </div>
+                    <div class="weather-item">
+                        <h3>Wind Chill</h3>
+                        <div class="value">${weather.windchill_c}°C</div>
+                        <div class="value">${weather.windchill_f}°F</div>
+                    </div>
+                    ${weather.maxtemp_c ? `
+                    <div class="weather-item">
+                        <h3>Max Temp</h3>
+                        <div class="value">${weather.maxtemp_c}°C</div>
+                        <div class="value">${weather.maxtemp_f}°F</div>
+                    </div>
+                    ` : ''}
+                    ${weather.mintemp_c ? `
+                    <div class="weather-item">
+                        <h3>Min Temp</h3>
+                        <div class="value">${weather.mintemp_c}°C</div>
+                        <div class="value">${weather.mintemp_f}°F</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result error';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `<p><strong>Error:</strong> ${message}</p>`;
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('location').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getWeather();
+            }
+        });
+    </script>
+</body>
+</html> 

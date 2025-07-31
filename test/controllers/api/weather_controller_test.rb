@@ -11,30 +11,31 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get current weather with valid US postal code" do
-    # Mock the weather API response
-    mock_weather_response = {
-      "current" => {
-        "last_updated" => "2024-01-15 12:00",
-        "last_updated_epoch" => 1705312800,
-        "temp_c" => 20.5,
-        "temp_f" => 68.9,
-        "feelslike_c" => 22.0,
-        "feelslike_f" => 71.6,
-        "windchill_c" => 21.0,
-        "windchill_f" => 69.8,
-        "maxtemp_c" => 25.0,
-        "maxtemp_f" => 77.0,
-        "mintemp_c" => 15.0,
-        "mintemp_f" => 59.0
-      }
+    # Mock the services
+    postal_code_result = {
+      valid: true,
+      country: 'US',
+      postal_code: '12345',
+      error: nil
+    }
+    
+    weather_data = {
+      'last_updated' => '2024-01-15 12:00',
+      'last_updated_epoch' => 1705312800,
+      'temp_c' => 20.5,
+      'temp_f' => 68.9,
+      'feelslike_c' => 22.0,
+      'feelslike_f' => 71.6,
+      'windchill_c' => 21.0,
+      'windchill_f' => 69.8,
+      'maxtemp_c' => 25.0,
+      'maxtemp_f' => 77.0,
+      'mintemp_c' => 15.0,
+      'mintemp_f' => 59.0
     }
 
-    # Mock the HTTP response
-    mock_http_response = mock
-    mock_http_response.stubs(:is_a?).with(Net::HTTPSuccess).returns(true)
-    mock_http_response.stubs(:body).returns(mock_weather_response.to_json)
-
-    Net::HTTP.stubs(:get_response).returns(mock_http_response)
+    PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
+    WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
 
     get api_weather_current_path, params: { location: '12345 Main St, New York, NY 12345' }
     
@@ -49,30 +50,31 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get current weather with valid Canadian postal code" do
-    # Mock the weather API response
-    mock_weather_response = {
-      "current" => {
-        "last_updated" => "2024-01-15 12:00",
-        "last_updated_epoch" => 1705312800,
-        "temp_c" => 15.2,
-        "temp_f" => 59.4,
-        "feelslike_c" => 16.0,
-        "feelslike_f" => 60.8,
-        "windchill_c" => 14.0,
-        "windchill_f" => 57.2,
-        "maxtemp_c" => 18.0,
-        "maxtemp_f" => 64.4,
-        "mintemp_c" => 10.0,
-        "mintemp_f" => 50.0
-      }
+    # Mock the services
+    postal_code_result = {
+      valid: true,
+      country: 'CA',
+      postal_code: 'A1A 1A1',
+      error: nil
+    }
+    
+    weather_data = {
+      'last_updated' => '2024-01-15 12:00',
+      'last_updated_epoch' => 1705312800,
+      'temp_c' => 15.2,
+      'temp_f' => 59.4,
+      'feelslike_c' => 16.0,
+      'feelslike_f' => 60.8,
+      'windchill_c' => 14.0,
+      'windchill_f' => 57.2,
+      'maxtemp_c' => 18.0,
+      'maxtemp_f' => 64.4,
+      'mintemp_c' => 10.0,
+      'mintemp_f' => 50.0
     }
 
-    # Mock the HTTP response
-    mock_http_response = mock
-    mock_http_response.stubs(:is_a?).with(Net::HTTPSuccess).returns(true)
-    mock_http_response.stubs(:body).returns(mock_weather_response.to_json)
-
-    Net::HTTP.stubs(:get_response).returns(mock_http_response)
+    PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
+    WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
 
     get api_weather_current_path, params: { location: '123 Main St, Toronto, ON A1A 1A1' }
     
@@ -154,29 +156,31 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
     ]
 
     test_cases.each do |test_case|
-      # Mock weather response for each test case
-      mock_weather_response = {
-        "current" => {
-          "last_updated" => "2024-01-15 12:00",
-          "last_updated_epoch" => 1705312800,
-          "temp_c" => 20.0,
-          "temp_f" => 68.0,
-          "feelslike_c" => 22.0,
-          "feelslike_f" => 71.6,
-          "windchill_c" => 21.0,
-          "windchill_f" => 69.8,
-          "maxtemp_c" => 25.0,
-          "maxtemp_f" => 77.0,
-          "mintemp_c" => 15.0,
-          "mintemp_f" => 59.0
-        }
+      # Mock the services for each test case
+      postal_code_result = {
+        valid: true,
+        country: 'US',
+        postal_code: test_case[:expected],
+        error: nil
+      }
+      
+      weather_data = {
+        'last_updated' => '2024-01-15 12:00',
+        'last_updated_epoch' => 1705312800,
+        'temp_c' => 20.0,
+        'temp_f' => 68.0,
+        'feelslike_c' => 22.0,
+        'feelslike_f' => 71.6,
+        'windchill_c' => 21.0,
+        'windchill_f' => 69.8,
+        'maxtemp_c' => 25.0,
+        'maxtemp_f' => 77.0,
+        'mintemp_c' => 15.0,
+        'mintemp_f' => 59.0
       }
 
-      mock_http_response = mock
-      mock_http_response.stubs(:is_a?).with(Net::HTTPSuccess).returns(true)
-      mock_http_response.stubs(:body).returns(mock_weather_response.to_json)
-
-      Net::HTTP.stubs(:get_response).returns(mock_http_response)
+      PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
+      WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
 
       get api_weather_current_path, params: { location: test_case[:input] }
       
@@ -197,29 +201,31 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
     ]
 
     test_cases.each do |test_case|
-      # Mock weather response for each test case
-      mock_weather_response = {
-        "current" => {
-          "last_updated" => "2024-01-15 12:00",
-          "last_updated_epoch" => 1705312800,
-          "temp_c" => 15.0,
-          "temp_f" => 59.0,
-          "feelslike_c" => 16.0,
-          "feelslike_f" => 60.8,
-          "windchill_c" => 14.0,
-          "windchill_f" => 57.2,
-          "maxtemp_c" => 18.0,
-          "maxtemp_f" => 64.4,
-          "mintemp_c" => 10.0,
-          "mintemp_f" => 50.0
-        }
+      # Mock the services for each test case
+      postal_code_result = {
+        valid: true,
+        country: 'CA',
+        postal_code: test_case[:expected],
+        error: nil
+      }
+      
+      weather_data = {
+        'last_updated' => '2024-01-15 12:00',
+        'last_updated_epoch' => 1705312800,
+        'temp_c' => 15.0,
+        'temp_f' => 59.0,
+        'feelslike_c' => 16.0,
+        'feelslike_f' => 60.8,
+        'windchill_c' => 14.0,
+        'windchill_f' => 57.2,
+        'maxtemp_c' => 18.0,
+        'maxtemp_f' => 64.4,
+        'mintemp_c' => 10.0,
+        'mintemp_f' => 50.0
       }
 
-      mock_http_response = mock
-      mock_http_response.stubs(:is_a?).with(Net::HTTPSuccess).returns(true)
-      mock_http_response.stubs(:body).returns(mock_weather_response.to_json)
-
-      Net::HTTP.stubs(:get_response).returns(mock_http_response)
+      PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
+      WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
 
       get api_weather_current_path, params: { location: test_case[:input] }
       
