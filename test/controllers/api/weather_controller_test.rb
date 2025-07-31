@@ -53,6 +53,8 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
     assert_equal 20.5, json_response['data']['weather']['temp_c']
     assert_equal 68.9, json_response['data']['weather']['temp_f']
     assert_equal false, json_response['data']['from_cache']
+    assert_includes json_response, 'rate_limit'
+    assert_equal 100, json_response['rate_limit']['limit']
   end
 
   test "should get current weather with valid Canadian postal code" do
@@ -98,6 +100,8 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
     assert_equal 15.2, json_response['data']['weather']['temp_c']
     assert_equal 59.4, json_response['data']['weather']['temp_f']
     assert_equal true, json_response['data']['from_cache']
+    assert_includes json_response, 'rate_limit'
+    assert_equal 100, json_response['rate_limit']['limit']
   end
 
   test "should return error for missing location parameter" do

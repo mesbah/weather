@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+# Simple linting script
+# Run with: bin/lint
+
+puts "🔍 Running RuboCop..."
+system("bundle exec rubocop app/ --format simple")
+
+if $?.success?
+  puts "✅ All files pass linting!"
+else
+  puts "❌ Linting issues found. Run 'bundle exec rubocop -A app/' to auto-fix."
+end 

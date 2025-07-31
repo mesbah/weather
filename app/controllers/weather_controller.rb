@@ -6,4 +6,4 @@ class WeatherController < ApplicationController
   def docs
     # This will render the API documentation
   end
-end 
+end

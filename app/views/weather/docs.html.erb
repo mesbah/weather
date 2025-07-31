@@ -314,6 +314,12 @@
       "postal_code": "10001",
       "country": "US"
     }
+  },
+  "rate_limit": {
+    "current_requests": 1,
+    "limit": 100,
+    "remaining": 99,
+    "reset_time": "2024-01-16T00:00:00Z"
   }
 }
             </div>
@@ -323,6 +329,19 @@
 {
   "status": "error",
   "error": "Error message description"
+}
+            </div>
+
+            <h3>Rate Limit Exceeded (429)</h3>
+            <div class="code-block">
+{
+  "status": "error",
+  "error": "Rate limit exceeded. Maximum 100 requests per day per IP address.",
+  "rate_limit_info": {
+    "limit": 100,
+    "reset_time": "2024-01-16T00:00:00Z",
+    "message": "Rate limit resets daily at midnight UTC"
+  }
 }
             </div>
 
@@ -355,6 +374,11 @@
                         <td><code>data.location</code></td>
                         <td>object</td>
                         <td>Location information including postal code and country</td>
+                    </tr>
+                    <tr>
+                        <td><code>rate_limit</code></td>
+                        <td>object</td>
+                        <td>Rate limit information including current requests, limit, and remaining requests</td>
                     </tr>
                 </tbody>
             </table>
@@ -453,6 +477,11 @@
                         <td>No postal code found in address</td>
                     </tr>
                     <tr>
+                        <td>429</td>
+                        <td>Rate limit exceeded</td>
+                        <td>Daily rate limit of 100 requests per IP exceeded</td>
+                    </tr>
+                    <tr>
                         <td>500</td>
                         <td>Failed to fetch weather data</td>
                         <td>Weather API error or network issue</td>
@@ -525,8 +554,55 @@
         </div>
 
         <div class="section">
-            <h2>Rate Limits</h2>
-            <p>The API respects WeatherAPI.com rate limits:</p>
+            <h2>Rate Limiting</h2>
+            <p>The API implements rate limiting to ensure fair usage and prevent abuse:</p>
+            
+            <h3>Daily Rate Limits</h3>
+            <ul>
+                <li><strong>Limit:</strong> 100 requests per day per IP address</li>
+                <li><strong>Reset Time:</strong> Daily at midnight UTC</li>
+                <li><strong>Tracking:</strong> Per IP address using request.remote_ip</li>
+            </ul>
+            
+            <h3>Rate Limit Information</h3>
+            <p>Every successful response includes rate limit information:</p>
+            <div class="code-block">
+{
+  "rate_limit": {
+    "current_requests": 5,
+    "limit": 100,
+    "remaining": 95,
+    "reset_time": "2024-01-16T00:00:00Z"
+  }
+}
+            </div>
+            
+            <h3>Rate Limit Exceeded</h3>
+            <p>When the rate limit is exceeded, the API returns a 429 status code:</p>
+            <div class="code-block">
+{
+  "status": "error",
+  "error": "Rate limit exceeded. Maximum 100 requests per day per IP address.",
+  "rate_limit_info": {
+    "limit": 100,
+    "reset_time": "2024-01-16T00:00:00Z",
+    "message": "Rate limit resets daily at midnight UTC"
+  }
+}
+            </div>
+            
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Monitor Usage:</strong> Check the rate_limit field in responses</li>
+                <li><strong>Plan Ahead:</strong> Consider caching responses on your end</li>
+                <li><strong>Handle 429:</strong> Implement exponential backoff for rate limit errors</li>
+                <li><strong>IP Considerations:</strong> Be aware that shared IPs may affect limits</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>WeatherAPI.com Rate Limits</h2>
+            <p>The API also respects WeatherAPI.com rate limits:</p>
             <ul>
                 <li><strong>Free tier:</strong> 1,000,000 calls per month</li>
                 <li><strong>Paid tiers:</strong> Higher limits based on plan</li>

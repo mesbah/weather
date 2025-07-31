@@ -8,6 +8,7 @@ A Rails application that provides weather information by extracting postal codes
 - **Weather Data**: Fetches current weather information including temperature, feels like, wind chill, and more
 - **Smart Caching**: Implements 30-minute caching to reduce API calls and improve performance
 - **Cache Status Transparency**: Returns cache status flag to indicate data freshness
+- **Rate Limiting**: 100 requests per day per IP address with daily reset
 - **Error Handling**: Comprehensive error handling for invalid inputs and API failures
 - **Frontend Interface**: Modern, responsive web interface for easy testing
 - **RESTful API**: Clean JSON API for programmatic access
@@ -115,6 +116,12 @@ GET /api/weather/current
       "postal_code": "10001",
       "country": "US"
     }
+  },
+  "rate_limit": {
+    "current_requests": 1,
+    "limit": 100,
+    "remaining": 99,
+    "reset_time": "2024-01-16T00:00:00Z"
   }
 }
 ```
@@ -158,12 +165,13 @@ curl "http://localhost:3000/api/weather/current?location=123%20Main%20St,%20Toro
 
 ### Error Codes
 
-| HTTP Status | Error Message                         | Description                        |
-| ----------- | ------------------------------------- | ---------------------------------- |
-| 400         | Location parameter is required        | Missing location parameter         |
-| 400         | Invalid postal code format            | Invalid postal code format         |
-| 400         | No valid postal code found in address | No postal code found in address    |
-| 500         | Failed to fetch weather data          | Weather API error or network issue |
+| HTTP Status | Error Message                         | Description                                      |
+| ----------- | ------------------------------------- | ------------------------------------------------ |
+| 400         | Location parameter is required        | Missing location parameter                       |
+| 400         | Invalid postal code format            | Invalid postal code format                       |
+| 400         | No valid postal code found in address | No postal code found in address                  |
+| 429         | Rate limit exceeded                   | Daily rate limit of 100 requests per IP exceeded |
+| 500         | Failed to fetch weather data          | Weather API error or network issue               |
 
 ## Services
 
@@ -217,6 +225,47 @@ The API returns a `from_cache` field in the response to indicate data freshness:
 
 This transparency helps you understand whether you're getting fresh or cached data.
 
+## Rate Limiting
+
+The API implements rate limiting to ensure fair usage and prevent abuse:
+
+### Daily Limits
+
+- **Limit**: 100 requests per day per IP address
+- **Reset Time**: Daily at midnight UTC
+- **Tracking**: Per IP address using `request.remote_ip`
+
+### Rate Limit Information
+
+Every successful response includes rate limit information in the `rate_limit` field:
+
+```json
+{
+  "rate_limit": {
+    "current_requests": 5,
+    "limit": 100,
+    "remaining": 95,
+    "reset_time": "2024-01-16T00:00:00Z"
+  }
+}
+```
+
+### Rate Limit Exceeded
+
+When the rate limit is exceeded, the API returns a 429 status code:
+
+```json
+{
+  "status": "error",
+  "error": "Rate limit exceeded. Maximum 100 requests per day per IP address.",
+  "rate_limit_info": {
+    "limit": 100,
+    "reset_time": "2024-01-16T00:00:00Z",
+    "message": "Rate limit resets daily at midnight UTC"
+  }
+}
+```
+
 ## Testing
 
 Run the test suite:
@@ -231,6 +280,28 @@ bin/rails test test/services/weather_service_test.rb
 bin/rails test test/services/postal_code_service_test.rb
 bin/rails test test/integration/weather_api_integration_test.rb
 ```
+
+## Linting
+
+The project uses RuboCop for code linting with simple, essential rules:
+
+```bash
+# Run linter
+bin/lint
+
+# Auto-fix issues
+bundle exec rubocop -A app/
+
+# Check specific file
+bundle exec rubocop app/controllers/api/weather_controller.rb
+```
+
+### Linting Rules
+
+- **String Literals**: Single quotes preferred
+- **Line Length**: Maximum 120 characters
+- **Formatting**: Automatic spacing and indentation
+- **Disabled**: Overly strict metrics and documentation requirements
 
 ## Configuration
 

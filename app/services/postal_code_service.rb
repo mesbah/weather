@@ -1,29 +1,29 @@
 class PostalCodeService
   # US ZIP code patterns (5 digits or 5+4 format)
   US_ZIP_PATTERNS = [
-    /^\d{5}$/,                    # 12345
-    /^\d{5}-\d{4}$/              # 12345-6789
+    /^\d{5}$/, # 12345
+    /^\d{5}-\d{4}$/ # 12345-6789
   ]
 
   # Canadian postal code patterns (A1A 1A1 format)
   CANADA_POSTAL_PATTERNS = [
-    /^[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d$/,  # A1A 1A1 or A1A1A1
-    /^[A-Za-z]\d[A-Za-z]-\d[A-Za-z]\d$/      # A1A-1A1
+    /^[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d$/, # A1A 1A1 or A1A1A1
+    /^[A-Za-z]\d[A-Za-z]-\d[A-Za-z]\d$/ # A1A-1A1
   ]
 
   def validate_and_extract_postal_code(address)
     # Normalize the address
     normalized_address = normalize_address(address)
-    
+
     # Extract and validate postal code
     extract_and_validate_postal_code(normalized_address)
   end
 
   def validate_postal_code(postal_code)
-    return { valid: false, country: nil, postal_code: nil, error: "Postal code cannot be empty" } if postal_code.blank?
-    
+    return { valid: false, country: nil, postal_code: nil, error: 'Postal code cannot be empty' } if postal_code.blank?
+
     normalized_postal = normalize_postal_code(postal_code)
-    
+
     # Check US ZIP codes
     if US_ZIP_PATTERNS.any? { |pattern| normalized_postal.match?(pattern) }
       return {
@@ -33,7 +33,7 @@ class PostalCodeService
         error: nil
       }
     end
-    
+
     # Check Canadian postal codes
     if CANADA_POSTAL_PATTERNS.any? { |pattern| normalized_postal.match?(pattern) }
       # Format Canadian postal code properly (A1A 1A1)
@@ -45,20 +45,20 @@ class PostalCodeService
         error: nil
       }
     end
-    
+
     {
       valid: false,
       country: nil,
       postal_code: nil,
-      error: "Invalid postal code format"
+      error: 'Invalid postal code format'
     }
   end
 
   def extract_postal_code_from_address(address)
-    return { postal_code: nil, error: "Address cannot be empty" } if address.blank?
-    
+    return { postal_code: nil, error: 'Address cannot be empty' } if address.blank?
+
     normalized_address = normalize_address(address)
-    
+
     # Extract US ZIP codes
     us_zip_match = normalized_address.match(/\b\d{5}(?:-\d{4})?\b/)
     if us_zip_match
@@ -67,7 +67,7 @@ class PostalCodeService
         error: nil
       }
     end
-    
+
     # Extract Canadian postal codes
     canada_postal_match = normalized_address.match(/\b[A-Za-z]\d[A-Za-z][\s-]?\d[A-Za-z]\d\b/)
     if canada_postal_match
@@ -77,10 +77,10 @@ class PostalCodeService
         error: nil
       }
     end
-    
+
     {
       postal_code: nil,
-      error: "No valid postal code found in address"
+      error: 'No valid postal code found in address'
     }
   end
 
@@ -89,7 +89,7 @@ class PostalCodeService
   def extract_and_validate_postal_code(address)
     # First try to extract postal code from address
     extraction_result = extract_postal_code_from_address(address)
-    
+
     if extraction_result[:error]
       return {
         valid: false,
@@ -98,12 +98,12 @@ class PostalCodeService
         error: extraction_result[:error]
       }
     end
-    
+
     # Validate the extracted postal code
     validation_result = validate_postal_code(extraction_result[:postal_code])
-    
+
     if validation_result[:valid]
-      return {
+      {
         valid: true,
         country: validation_result[:country],
         postal_code: validation_result[:postal_code],
@@ -111,7 +111,7 @@ class PostalCodeService
         address: address
       }
     else
-      return {
+      {
         valid: false,
         country: nil,
         postal_code: nil,
@@ -137,5 +137,4 @@ class PostalCodeService
       postal_code
     end
   end
-
-end 
+end

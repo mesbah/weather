@@ -11,7 +11,7 @@ class WeatherService
   def get_weather(postal_code)
     # Normalize postal code (remove spaces, convert to uppercase)
     normalized_postal_code = normalize_postal_code(postal_code)
-    
+
     # Try to get from cache first
     cached_data = Rails.cache.read(cache_key(normalized_postal_code))
     if cached_data
@@ -23,17 +23,17 @@ class WeatherService
 
     # If not cached, fetch from API
     weather_data = fetch_weather_from_api(normalized_postal_code)
-    
+
     # Filter the response to keep only the required fields
     filtered_data = filter_weather_data(weather_data)
-    
+
     # Cache the filtered response for 30 minutes
     Rails.cache.write(
-      cache_key(normalized_postal_code), 
-      filtered_data, 
+      cache_key(normalized_postal_code),
+      filtered_data,
       expires_in: CACHE_DURATION
     )
-    
+
     {
       data: filtered_data,
       from_cache: false
@@ -42,10 +42,10 @@ class WeatherService
 
   def filter_weather_data(weather_data)
     return {} unless weather_data && weather_data['current']
-    
+
     current = weather_data['current']
     forcast = weather_data['forecast']['forecastday'][0]['day']
-    
+
     {
       'last_updated' => current['last_updated'],
       'last_updated_epoch' => current['last_updated_epoch'],
@@ -97,50 +97,50 @@ class WeatherService
 
   def fetch_weather_from_api(postal_code)
     uri = build_api_uri(postal_code)
-    
+
     begin
       response = Net::HTTP.get_response(uri)
-      
+
       if response.is_a?(Net::HTTPSuccess)
         JSON.parse(response.body)
       else
         # Parse error response to get specific error code
         error_data = parse_error_response(response)
         error_code = error_data['error']&.dig('code')
-        
+
         # Check for specific API quota and access errors
         if response.code == '403' && error_code
           case error_code
           when 2007
             alert_team_quota_exceeded(postal_code, error_data)
-            raise "API key has exceeded calls per month quota"
+            raise 'API key has exceeded calls per month quota'
           when 2008
             alert_team_api_disabled(postal_code, error_data)
-            raise "API key has been disabled"
+            raise 'API key has been disabled'
           when 2009
             alert_team_access_denied(postal_code, error_data)
-            raise "API key does not have access to the resource"
+            raise 'API key does not have access to the resource'
           else
-            Rails.logger.error "Weather API request failed for postal code #{postal_code}: #{response.code} - #{response.message}"
+            Rails.logger.error "Weather API request failed for postal code #{postal_code}: " \
+                               "#{response.code} - #{response.message}"
             raise "API request failed with status: #{response.code} - #{response.message}"
           end
         else
-          Rails.logger.error "Weather API request failed for postal code #{postal_code}: #{response.code} - #{response.message}"
+          Rails.logger.error "Weather API request failed for postal code #{postal_code}: " \
+                             "#{response.code} - #{response.message}"
           raise "API request failed with status: #{response.code} - #{response.message}"
         end
       end
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error "Weather API error for postal code #{postal_code}: #{e.message}"
       raise "Failed to fetch weather data: #{e.message}"
     end
   end
 
   def parse_error_response(response)
-    begin
-      JSON.parse(response.body)
-    rescue JSON::ParserError
-      { 'error' => { 'message' => response.message, 'code' => nil } }
-    end
+    JSON.parse(response.body)
+  rescue JSON::ParserError
+    { 'error' => { 'message' => response.message, 'code' => nil } }
   end
 
   def alert_team_quota_exceeded(postal_code, error_data)
@@ -150,7 +150,7 @@ class WeatherService
               "Message: API key has exceeded calls per month quota\n" \
               "Time: #{Time.current}\n" \
               "Error Details: #{error_data['error']}"
-    
+
     Rails.logger.error message
     # Datatdog monitor, or error tracking system
   end
@@ -162,7 +162,7 @@ class WeatherService
               "Message: API key has been disabled\n" \
               "Time: #{Time.current}\n" \
               "Error Details: #{error_data['error']}"
-    
+
     Rails.logger.error message
     # Datatdog monitor, or error tracking system
   end
@@ -174,7 +174,7 @@ class WeatherService
               "Message: API key does not have access to the resource\n" \
               "Time: #{Time.current}\n" \
               "Error Details: #{error_data['error']}"
-    
+
     Rails.logger.error message
     # Datatdog monitor, or error tracking system
   end
@@ -183,7 +183,7 @@ class WeatherService
     uri = URI(API_BASE_URL)
     params = {
       # API key is now loaded from environment variable
-      key: API_KEY, 
+      key: API_KEY,
       q: postal_code,
       days: 1,
       aqi: 'no',
@@ -192,4 +192,4 @@ class WeatherService
     uri.query = URI.encode_www_form(params)
     uri
   end
-end 
+end
