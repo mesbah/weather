@@ -59,7 +59,8 @@ class WeatherServiceTest < ActiveSupport::TestCase
 
     # Should return cached data without calling API
     result = @weather_service.get_weather(@postal_code)
-    assert_equal mock_response, result
+    assert_equal mock_response, result[:data]
+    assert_equal true, result[:from_cache]
   end
 
   test "should call API when cache is empty" do
@@ -95,10 +96,11 @@ class WeatherServiceTest < ActiveSupport::TestCase
     result = @weather_service.get_weather(@postal_code)
     
     assert_not_nil result
-    assert_equal "2025-07-29 23:30", result["last_updated"]
-    assert_equal 1753846200, result["last_updated_epoch"]
-    assert_equal 21.1, result["temp_c"]
-    assert_equal 70.0, result["temp_f"]
+    assert_equal "2025-07-29 23:30", result[:data]["last_updated"]
+    assert_equal 1753846200, result[:data]["last_updated_epoch"]
+    assert_equal 21.1, result[:data]["temp_c"]
+    assert_equal 70.0, result[:data]["temp_f"]
+    assert_equal false, result[:from_cache]
   end
 
   test "should cache API response" do

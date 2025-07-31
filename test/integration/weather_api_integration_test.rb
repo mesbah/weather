@@ -34,8 +34,13 @@ class WeatherApiIntegrationTest < ActionDispatch::IntegrationTest
       'mintemp_f' => 59.0
     }
 
+    weather_result = {
+      data: weather_data,
+      from_cache: false
+    }
+
     PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
-    WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
+    WeatherService.any_instance.stubs(:get_weather).returns(weather_result)
 
     get api_weather_current_path, params: { location: "123 Main St, New York, NY 10001" }
     
@@ -73,8 +78,13 @@ class WeatherApiIntegrationTest < ActionDispatch::IntegrationTest
       'mintemp_f' => 50.0
     }
 
+    weather_result = {
+      data: weather_data,
+      from_cache: true
+    }
+
     PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
-    WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
+    WeatherService.any_instance.stubs(:get_weather).returns(weather_result)
 
     get api_weather_current_path, params: { location: "123 Main St, Toronto, ON A1A 1A1" }
     
@@ -144,8 +154,13 @@ class WeatherApiIntegrationTest < ActionDispatch::IntegrationTest
       'mintemp_f' => 59.0
     }
 
+    weather_result = {
+      data: weather_data,
+      from_cache: false
+    }
+
     PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
-    WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
+    WeatherService.any_instance.stubs(:get_weather).returns(weather_result)
 
     # First request should call the API
     get api_weather_current_path, params: { location: "123 Main St, New York, NY 10001" }
@@ -194,8 +209,13 @@ class WeatherApiIntegrationTest < ActionDispatch::IntegrationTest
         'mintemp_f' => 59.0
       }
 
+      weather_result = {
+        data: weather_data,
+        from_cache: false
+      }
+
       PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
-      WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
+      WeatherService.any_instance.stubs(:get_weather).returns(weather_result)
 
       get api_weather_current_path, params: { location: test_case[:input] }
       

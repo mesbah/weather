@@ -14,7 +14,12 @@ class WeatherService
     
     # Try to get from cache first
     cached_data = Rails.cache.read(cache_key(normalized_postal_code))
-    return cached_data if cached_data
+    if cached_data
+      return {
+        data: cached_data,
+        from_cache: true
+      }
+    end
 
     # If not cached, fetch from API
     weather_data = fetch_weather_from_api(normalized_postal_code)
@@ -29,7 +34,10 @@ class WeatherService
       expires_in: CACHE_DURATION
     )
     
-    filtered_data
+    {
+      data: filtered_data,
+      from_cache: false
+    }
   end
 
   def filter_weather_data(weather_data)

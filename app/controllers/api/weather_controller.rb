@@ -14,12 +14,13 @@ class Api::WeatherController < ApplicationController
     end
 
     # Get weather data using the extracted postal code
-    weather_data = WeatherService.new.get_weather(postal_code_result[:postal_code])
+    weather_result = WeatherService.new.get_weather(postal_code_result[:postal_code])
     
     render json: {
       status: 'success',
       data: {
-        weather: weather_data,
+        weather: weather_result[:data],
+        from_cache: weather_result[:from_cache],
         location: {
           postal_code: postal_code_result[:postal_code],
           country: postal_code_result[:country]

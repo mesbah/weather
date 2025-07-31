@@ -169,6 +169,27 @@
             font-weight: bold;
         }
 
+        .cache-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .cache-status.cached {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .cache-status.fresh {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
         .nav-links {
             text-align: center;
             margin-bottom: 20px;
@@ -256,13 +277,19 @@
             const resultDiv = document.getElementById('result');
             const weather = data.data.weather;
             const location = data.data.location;
+            const fromCache = data.data.from_cache;
             
             resultDiv.className = 'result success';
             resultDiv.style.display = 'block';
             
+            const cacheStatus = fromCache ? 
+                '<span class="cache-status cached">📦 Cached Data</span>' : 
+                '<span class="cache-status fresh">🔄 Fresh API Data</span>';
+            
             resultDiv.innerHTML = `
                 <h3>📍 ${location.postal_code} (${location.country})</h3>
                 <p><strong>Last Updated:</strong> ${weather.last_updated}</p>
+                <p><strong>Data Source:</strong> ${cacheStatus}</p>
                 <div class="weather-grid">
                     <div class="weather-item">
                         <h3>Temperature</h3>

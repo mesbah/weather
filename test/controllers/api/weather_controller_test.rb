@@ -34,8 +34,13 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
       'mintemp_f' => 59.0
     }
 
+    weather_result = {
+      data: weather_data,
+      from_cache: false
+    }
+
     PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
-    WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
+    WeatherService.any_instance.stubs(:get_weather).returns(weather_result)
 
     get api_weather_current_path, params: { location: '12345 Main St, New York, NY 12345' }
     
@@ -47,6 +52,7 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'US', json_response['data']['location']['country']
     assert_equal 20.5, json_response['data']['weather']['temp_c']
     assert_equal 68.9, json_response['data']['weather']['temp_f']
+    assert_equal false, json_response['data']['from_cache']
   end
 
   test "should get current weather with valid Canadian postal code" do
@@ -73,8 +79,13 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
       'mintemp_f' => 50.0
     }
 
+    weather_result = {
+      data: weather_data,
+      from_cache: true
+    }
+
     PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
-    WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
+    WeatherService.any_instance.stubs(:get_weather).returns(weather_result)
 
     get api_weather_current_path, params: { location: '123 Main St, Toronto, ON A1A 1A1' }
     
@@ -86,6 +97,7 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'CA', json_response['data']['location']['country']
     assert_equal 15.2, json_response['data']['weather']['temp_c']
     assert_equal 59.4, json_response['data']['weather']['temp_f']
+    assert_equal true, json_response['data']['from_cache']
   end
 
   test "should return error for missing location parameter" do
@@ -179,8 +191,13 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
         'mintemp_f' => 59.0
       }
 
+      weather_result = {
+        data: weather_data,
+        from_cache: false
+      }
+
       PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
-      WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
+      WeatherService.any_instance.stubs(:get_weather).returns(weather_result)
 
       get api_weather_current_path, params: { location: test_case[:input] }
       
@@ -224,8 +241,13 @@ class Api::WeatherControllerTest < ActionDispatch::IntegrationTest
         'mintemp_f' => 50.0
       }
 
+      weather_result = {
+        data: weather_data,
+        from_cache: true
+      }
+
       PostalCodeService.any_instance.stubs(:validate_and_extract_postal_code).returns(postal_code_result)
-      WeatherService.any_instance.stubs(:get_weather).returns(weather_data)
+      WeatherService.any_instance.stubs(:get_weather).returns(weather_result)
 
       get api_weather_current_path, params: { location: test_case[:input] }
       
