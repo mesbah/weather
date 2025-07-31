@@ -76,12 +76,18 @@ class WeatherServiceTest < ActiveSupport::TestCase
         "feelslike_f" => 70.0,
         "windchill_c" => 21.9,
         "windchill_f" => 71.5,
-        "maxtemp_c" => 25.0,
-        "maxtemp_f" => 77.0,
-        "mintemp_c" => 18.0,
-        "mintemp_f" => 64.4
+      },
+      "forecast" => {
+        "forecastday" => [{
+        "day" => {
+          "maxtemp_c" => 25.0,
+          "maxtemp_f" => 77.0,
+          "mintemp_c" => 18.0,
+          "mintemp_f" => 64.4
+        }
       }
-    }.to_json)
+    ]
+    }}.to_json)
 
     # Mock Net::HTTP.get_response
     Net::HTTP.stubs(:get_response).returns(mock_http_response)
@@ -109,11 +115,16 @@ class WeatherServiceTest < ActiveSupport::TestCase
         "feelslike_f" => 70.0,
         "windchill_c" => 21.9,
         "windchill_f" => 71.5,
+      },
+      "forecast" => {
+        "forecastday" => [{
+          "day" => {
         "maxtemp_c" => 25.0,
         "maxtemp_f" => 77.0,
         "mintemp_c" => 18.0,
         "mintemp_f" => 64.4
       }
+    }]}
     }.to_json)
 
     Net::HTTP.stubs(:get_response).returns(mock_http_response)
@@ -275,6 +286,16 @@ class WeatherServiceTest < ActiveSupport::TestCase
         "windchill_f" => 71.5,
         "humidity" => 88,
         "condition" => {"text" => "Clear"}
+      },
+      "forecast" => {
+        "forecastday" => [
+          "day" => {
+            "maxtemp_c" => 25.0,
+            "maxtemp_f" => 77.0,
+            "mintemp_c" => 18.0,
+            "mintemp_f" => 64.4
+          }
+        ]
       }
     }
     

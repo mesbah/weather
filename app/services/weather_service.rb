@@ -36,16 +36,17 @@ class WeatherService
     return {} unless weather_data && weather_data['current']
     
     current = weather_data['current']
+    forcast = weather_data['forecast']['forecastday'][0]['day']
     
     {
       'last_updated' => current['last_updated'],
       'last_updated_epoch' => current['last_updated_epoch'],
       'temp_c' => current['temp_c'],
       'temp_f' => current['temp_f'],
-      'maxtemp_c' => current['maxtemp_c'],
-      'maxtemp_f' => current['maxtemp_f'],
-      'mintemp_c' => current['mintemp_c'],
-      'mintemp_f' => current['mintemp_f'],
+      'maxtemp_c' => forcast['maxtemp_c'],
+      'maxtemp_f' => forcast['maxtemp_f'],
+      'mintemp_c' => forcast['mintemp_c'],
+      'mintemp_f' => forcast['mintemp_f'],
       'feelslike_c' => current['feelslike_c'],
       'feelslike_f' => current['feelslike_f'],
       'windchill_c' => current['windchill_c'],
