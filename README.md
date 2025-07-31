@@ -6,7 +6,8 @@ A Rails application that provides weather information by extracting postal codes
 
 - **Postal Code Extraction**: Automatically extracts and validates US ZIP codes and Canadian postal codes from addresses
 - **Weather Data**: Fetches current weather information including temperature, feels like, wind chill, and more
-- **Caching**: Implements 30-minute caching to reduce API calls and improve performance
+- **Smart Caching**: Implements 30-minute caching to reduce API calls and improve performance
+- **Cache Status Transparency**: Returns cache status flag to indicate data freshness
 - **Error Handling**: Comprehensive error handling for invalid inputs and API failures
 - **Frontend Interface**: Modern, responsive web interface for easy testing
 - **RESTful API**: Clean JSON API for programmatic access
@@ -109,6 +110,7 @@ GET /api/weather/current
       "mintemp_c": 15.0,
       "mintemp_f": 59.0
     },
+    "from_cache": false,
     "location": {
       "postal_code": "10001",
       "country": "US"
@@ -176,7 +178,7 @@ weather_data = weather_service.get_weather("10001")
 
 **Methods:**
 
-- `get_weather(postal_code)`: Fetch weather data for a postal code
+- `get_weather(postal_code)`: Fetch weather data for a postal code (returns `{data: weather_data, from_cache: boolean}`)
 - `clear_cache(postal_code)`: Clear cache for specific postal code
 - `cached?(postal_code)`: Check if data is cached
 - `cache_expiry(postal_code)`: Get cache expiry time
@@ -205,6 +207,15 @@ The application implements a 30-minute cache for weather data to:
 - Reduce costs
 
 Cache keys follow the pattern: `weather_service:{postal_code}`
+
+### Cache Status
+
+The API returns a `from_cache` field in the response to indicate data freshness:
+
+- `"from_cache": false` - Data was freshly fetched from WeatherAPI.com
+- `"from_cache": true` - Data was retrieved from the 30-minute cache
+
+This transparency helps you understand whether you're getting fresh or cached data.
 
 ## Testing
 
@@ -251,6 +262,7 @@ The application includes a modern, responsive frontend interface accessible at:
 Features:
 
 - Real-time weather data display
+- Cache status indicators (📦 Cached Data / 🔄 Fresh API Data)
 - Support for all postal code formats
 - Error handling and user feedback
 - Mobile-responsive design
