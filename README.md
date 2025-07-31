@@ -31,6 +31,9 @@ A Rails application that provides weather information by extracting postal codes
 - Ruby 3.0+
 - Rails 7.0+
 - Redis (for caching)
+- **WeatherAPI.com API key** - Get a free API key from [https://www.weatherapi.com/](https://www.weatherapi.com/)
+  - Sign up for a free account
+  - Free tier includes 1,000,000 calls per month
 
 ### Installation
 
@@ -47,20 +50,26 @@ cd weather
 bundle install
 ```
 
-3. Set up environment variables:
+3. **Get your WeatherAPI.com API key**:
+
+   - Visit [https://www.weatherapi.com/](https://www.weatherapi.com/)
+   - Sign up for a free account
+   - Get your API key from the dashboard
+
+4. Set up environment variables:
 
 ```bash
 # Create .env file or set in your environment
 export WEATHER_API_KEY=your_weather_api_key_here
 ```
 
-4. Start the server:
+5. Start the server:
 
 ```bash
 bin/rails server
 ```
 
-5. Visit the application:
+6. Visit the application:
    - Frontend: http://localhost:3000
    - API: http://localhost:3000/api/weather/current?location=10001
 
