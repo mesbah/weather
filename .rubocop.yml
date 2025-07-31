@@ -2,6 +2,14 @@ AllCops:
   NewCops: enable
   TargetRubyVersion: 3.4
   SuggestExtensions: false
+  Exclude:
+    - "Gemfile"
+    - "bin/**/*"
+    - "config/**/*"
+    - "db/**/*"
+    - "demo_cache_status.rb"
+    - "Rakefile"
+    - "config.ru"
 
 # Simple, essential rules only
 Style/StringLiterals:

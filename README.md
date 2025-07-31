@@ -300,6 +300,7 @@ bundle exec rubocop app/controllers/api/weather_controller.rb
 
 - **String Literals**: Single quotes preferred
 - **Line Length**: Maximum 120 characters
+- **Scope**: Only checks `app/` and `test/` directories (excludes generated files)
 - **Formatting**: Automatic spacing and indentation
 - **Disabled**: Overly strict metrics and documentation requirements
 
