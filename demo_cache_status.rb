@@ -5,15 +5,15 @@
 
 require_relative 'config/environment'
 
-puts "🌤️ Weather Service Cache Status Demo"
-puts "=" * 50
+puts '🌤️ Weather Service Cache Status Demo'
+puts '=' * 50
 
 # Clear cache to start fresh
 Rails.cache.clear
-puts "✅ Cache cleared"
+puts '✅ Cache cleared'
 
 weather_service = WeatherService.new
-postal_code = "N1E0K7"
+postal_code = 'N1E0K7'
 
 puts "\n📍 Testing postal code: #{postal_code}"
 
@@ -24,7 +24,7 @@ begin
   puts "   Data Source: #{result[:from_cache] ? '📦 Cached' : '🔄 Fresh API'}"
   puts "   Temperature: #{result[:data]['temp_c']}°C"
   puts "   Last Updated: #{result[:data]['last_updated']}"
-rescue => e
+rescue StandardError => e
   puts "   ❌ Error: #{e.message}"
 end
 
@@ -35,7 +35,7 @@ begin
   puts "   Data Source: #{result[:from_cache] ? '📦 Cached' : '🔄 Fresh API'}"
   puts "   Temperature: #{result[:data]['temp_c']}°C"
   puts "   Last Updated: #{result[:data]['last_updated']}"
-rescue => e
+rescue StandardError => e
   puts "   ❌ Error: #{e.message}"
 end
 
@@ -48,4 +48,4 @@ puts "\n🗑️ Clearing cache..."
 weather_service.clear_cache(postal_code)
 puts "   Is cached? #{weather_service.cached?(postal_code)}"
 
-puts "\n✅ Demo completed!" 
+puts "\n✅ Demo completed!"
